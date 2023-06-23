@@ -16,6 +16,7 @@ class Xpath_Util:
         self.button_text_lists = []
         self.language_counter = 1
         self.elementsxpath = []
+
         self.driver = driver
     def __locatorvalidation(self,element,guessable_element):
         validlocatorfound = False
@@ -57,6 +58,7 @@ class Xpath_Util:
 
     def generate_xpath(self, soup):
         webpagedictlist = []
+        multiplebtn = []
         submitbuttonxpath = {}
         print("generate the xpath and assign the variable names")
         result_flag = False
@@ -114,15 +116,18 @@ class Xpath_Util:
                         webpagedictlist.append(webpagedict)
 
 
-                elif guessable_element in ('button') and element.getText():
+                elif guessable_element in ('button'):
                     button_text = element.getText()
-                    if element.getText() == button_text.strip():
+
+                    if element.getText().strip() == button_text.strip():
                         locator = self.guess_xpath_button(guessable_element, "text()", element.getText())
                         submitbuttonxpath["submitbtnxpath"] = locator
+                        multiplebtn.append(locator)
                     else:
                         locator = self.guess_xpath_using_contains(guessable_element, "text()",
                                                                       button_text.strip())
                         submitbuttonxpath["submitbtnxpath"] = locator
+                        multiplebtn.append(locator)
 
                     if len(self.driver.find_elements(by=By.XPATH, value=locator)) == 1:
                         result_flag = True
@@ -153,7 +158,7 @@ class Xpath_Util:
                 elif element == 'table':
                         print("Table found in the page")
                         # print(webpagedictlist)
-        return result_flag, webpagedictlist, submitbuttonxpath
+        return result_flag, webpagedictlist, submitbuttonxpath,multiplebtn
 
 
 
@@ -240,8 +245,8 @@ class Xpath_Util:
         page = self.driver.execute_script("return document.body.innerHTML").encode('utf-8').decode(
             'latin-1')  # returns the inner HTML as a string
         soup = BeautifulSoup(page, 'html.parser')
-        result_flag, webpagedictlist, submitbuttonxpath=self.generate_xpath(soup)
-        return result_flag, webpagedictlist, submitbuttonxpath
+        result_flag, webpagedictlist, submitbuttonxpath,multiplebtn=self.generate_xpath(soup)
+        return result_flag, webpagedictlist, submitbuttonxpath,multiplebtn
         #if self.generate_xpath(soup) is False:
             #print("No XPaths generated for the URL:%s" % url)
         #print(self.elementsxpath)

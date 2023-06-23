@@ -13,7 +13,7 @@ class AnswerIdentifier:
         answertag=self.bot_driver.find_elements(By.CLASS_NAME,"custom-checkbox")
         for answer in answertag:
             value=answer.find_element(By.TAG_NAME,'label').text
-            self.answer_register.append(answer)
+            self.answer_register.append(value)
         return self.answer_register
     def Identifysampliciuosanswers(self):
         answer=self.bodycontent.find_element(By.CLASS_NAME,"answer").text

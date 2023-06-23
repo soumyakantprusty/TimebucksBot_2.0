@@ -136,7 +136,7 @@ if __name__ == '__main__':
     print("Bot program started")
     print("Reading excepted inputs for the Bot parameters")
     noofparameters = len(sys.argv)
-    if noofparameters<7:
+    if noofparameters<10:
         print("Required parameters not found.Check and relaunch the program")
     else:
         bot_port=sys.argv[1]
@@ -146,6 +146,9 @@ if __name__ == '__main__':
         endnum = sys.argv[5]
         pushclicklimit=sys.argv[6]
         slideshowlimit=sys.argv[7]
+        hideoutdefaultacct=sys.argv[8]
+        hideouttvwatchtime= sys.argv[9]
+        loottvwatchtime = sys.argv[10]
         #webdriverswitch=sys.argv[5]
         #bot_profile=sys.argv[1]
         webdriverclass = TimeBucksBots(bot_port)
@@ -156,8 +159,8 @@ if __name__ == '__main__':
         obj_pushclick=pushclick(taskurlslist[2],basefilepath,bot_port,startnum,endnum,pushclicklimit)
         obj_slideshow=slideshow(taskurlslist[3],basefilepath,bot_port,startnum,endnum,slideshowlimit)
         obj_defaultsurvey=defaultsurvey(taskurlslist[4],basefilepath,bot_port)
-        obj_hydeouttv=hydeouttv(taskurlslist[5],basefilepath,bot_port,credentials)
-        obj_loottv=LootTv(taskurlslist[7],basefilepath,bot_port,credentials)
+        obj_hydeouttv=hydeouttv(taskurlslist[5],basefilepath,bot_port,credentials,hideoutdefaultacct,hideouttvwatchtime)
+        obj_loottv=LootTv(taskurlslist[7],basefilepath,bot_port,credentials,loottvwatchtime,startnum,endnum)
         obj_tasktimers=tasktimers(basefilepath)
         obj_botincomedetails=botincomedetails(taskurlslist[6],basefilepath,bot_port,curentuser)
         obj_dailyyoutubetask=dailyyoutubetask(taskurlslist[1],basefilepath,bot_port,curentuser,startnum,endnum)
@@ -254,7 +257,7 @@ if __name__ == '__main__':
                             isfilterset=obj_dailyyoutubetask.setfilterfoytubetask()
                             if isfilterset:
                                 obj_dailyyoutubetask.perfromYtubewatchtask()
-                elif random_int==77:
+                elif random_int==7:
                     obj_survey = Surveys(taskurlslist[4], basefilepath, bot_port)
                     print("############################")
                     print("Survey-Bot JobId:{jobid}".format(jobid=random_int))
@@ -270,22 +273,26 @@ if __name__ == '__main__':
                         elif ispresent and  url.startswith("https://offers.cpx-research.com/"):
                             obj_surveybot=SurveyBot(url,basefilepath,bot_driver)
                             obj_surveybot.startappearingsurvey("cpx")
+                        elif ispresent and not url.startswith("https://offers.cpx-research.com/") and not  url.startswith("https://www.samplicio.us/"):
+                            obj_surveybot = SurveyBot(url, basefilepath, bot_driver)
+                            obj_surveybot.actualsurveybot()
                         else:
                             print("No active survey available")
                 elif random_int==8 and obj_tasktimers.settimers(1):
                     print("LOOT TV-Bot JobId:{jobid}".format(jobid=random_int))
                     logger.info("Loot TV-Bot JobId:{jobid}".format(jobid=random_int))
-                    isloottvstarted=obj_loottv.starloottv()
-                    if isloottvstarted:
-                        print("LootTV Started")
-                        logger.info("Start watch videos")
-                        obj_loottv.startwatchingloottv()
+                    isLootTVavailable=obj_loottv.checkLoottv()
+                    #time.sleep(20)
+                    if isLootTVavailable:
+                        print("LootTV Available Starting to switchit on")
+                        logger.info("LootTV Available Starting to switchit on")
+                        obj_loottv.switchLoottvOn()
                     else:
                         print("Unable to start loottv")
-                    incomedetails = obj_botincomedetails.getbotincometaskdetails()
-
-                    with open(basefilepath + "\\incomedetails.json", 'w') as json_file:
-                        json.dump(incomedetails, json_file)
+                    print("LootTV task completed")
+                    #incomedetails = obj_botincomedetails.getbotincometaskdetails()
+                   #with open(basefilepath + "\\incomedetails.json", 'w') as json_file:
+                        #json.dump(incomedetails, json_file)
             print("################################")
             print("End of {batch} batch Job".format(batch=cntr))
             print("################################")

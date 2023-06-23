@@ -46,6 +46,8 @@ class pushclick:
             if pushclickquota_1=="https://timebucks.com/publishers/images/tick-green.png" and pushclickquota_2=="https://timebucks.com/publishers/images/tick-green.png":
                 dailyquotacomplete=True
             self.bot_driver.get(self.url)
+        else:
+            dailyquotacomplete = False
         return dailyquotacomplete
 
 

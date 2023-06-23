@@ -109,10 +109,19 @@ class dailyyoutubetask:
         return isjobdone
     def __stringcategorization(self,instructions):
         instructions = instructions.strip()
+        file_path = self.basefilepath+"\\taskinstructions.txt"  # Provide the desired file path
+
+        # Open the file in write mode
+        with open(file_path, "a") as file:
+            data = instructions
+            file.write(data)
+        with open(file_path, "a") as file:
+            file.write("###############################################################################")
         patternlist = [
             r"1\. Go to\s+(.*?)\s+and click(?:\son\s)?(?:the\s)?video titled\s+(.*?)\s+with this thumbnail\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch at-least\s+(.*?)\s+minutes of(?:\sthe\s)?video\.?\s+3\. Optional Like the video",
             r"1\. Go to\s+(.*?)\s+and click on the video titled\s+(.*?)\s+with this thumbnail\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch at-least\s+(.*?)\s+minutes of the video\.?\s+3\. Optional Like the video",
-            r"1\. Go to\s+(.*?)\s+and click on the video titled\s+(.*?)\s+with this thumbnail\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch(?:\sthe\s)?entire\s+(.*?)\s+minutes (?:\sof\s)?(?:\sthe\s)? video\.?\s",
+            r"1\. Go to\s+(.*?)\s+and click on the video titled\s+(.*?)\s+with this\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch(?:\sthe\s)?entire\s+(.*?)\s+minutes (?:\sof\s)?(?:\sthe\s)? video\.?\s",
+            r"1\. Go to\s+(.*?)\s+and click(?:\son\s)?(?:the\s)?video titled\s+(.*?)\s+with this thumbnail\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch at-least\s+(.*?)\s+minutes of(?:\sthe\s)?video\.?\s+3\. Optional Like the video",
             r"1\. watch our youtube video for\s+(.*?)\s+minute\s+(.*?)",
             r"1\. Click this link\s+(.*?)\s+2\. Watch the video\s+(.*?)\s+min\."
         ]
@@ -230,7 +239,7 @@ class dailyyoutubetask:
 
     def remove_emoji(self,text):
         # Regular expression pattern to match emoji characters
-        pattern = r"[^\w\s]"
+        pattern = r"[^\w\s]|(\?{3,})"
 
         emoji_pattern = re.compile("["
                                    u"\U0001F600-\U0001F64F"  # emoticons
@@ -243,6 +252,7 @@ class dailyyoutubetask:
                                    u"\U0001F1E6-\U0001F1FF"  # flags (other)
                                    "]+", flags=re.UNICODE)
         cleaned_text = re.sub(pattern, "", emoji_pattern.sub(r'', text))
+        cleaned_text = re.sub(r"\s+", " ", cleaned_text)
         return cleaned_text
 
 
@@ -389,6 +399,9 @@ class dailyyoutubetask:
                                         time.sleep(self.sleeptime)
                                         videocomp = True
                                         self.taskregistry_obj.addcompletedtask(1,0.001)
+                                        break
+                                    elif counter >20:
+                                        videotitlefound=False
                                         break
                                 if not videotitlefound:
                                     print("Video Title not found!Now closing the windows")

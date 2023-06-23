@@ -72,11 +72,13 @@ class Surveys:
                 print(">>>>Survey not terminated<<<")
                 self.logger.info("Survey not terminated")
         return issurveyterminated
+    def __BitLabsrouter(self):
+       pass
 
     def check_presenceofsurvey(self):
         obj_HumanActionSimulator=HumanActionSimulator()
         surveyproviderlist=["Samplicious Best Converting Survey Router","Samplicious $0.70 Survey Router","Samplicious $0.35 Survey Router","CPX Research","Samplicious 5 minute Survey Router","Samplicious 15 minute Survey Router","Samplicious 30 minute Survey Router"]
-        #surveyproviderlist = ["CPX Research"]
+        #surveyproviderlist = ["CPX Research","Dynata Survey Router"]
         time.sleep(self.random_sleeptime)
         print("Starting to check for availability for survey")
         self.logger.info("Starting to check for availability for survey")
@@ -98,12 +100,13 @@ class Surveys:
                         print(rows2.text+":Survey found")
                         self.logger.info(rows2.text+":Survey found")
                         rows1.find_element(By.TAG_NAME, "a").click()
+
                         try:
                             parent = self.bot_driver.window_handles[0]
                             child = self.bot_driver.window_handles[1]
                             self.bot_driver.switch_to.window(child)
-                            obj_anticaptcha = AntiCaptcha(self.bot_driver)
-                            obj_anticaptcha.callanticaptcha()
+                            #obj_anticaptcha = AntiCaptcha(self.bot_driver)
+                            #obj_anticaptcha.callanticaptcha()
 
                             WebDriverWait(self.bot_driver, 20).until(
                                 EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//iframe[@title='reCAPTCHA']")))
@@ -161,8 +164,46 @@ class Surveys:
                             break
                         except:
                             print(traceback.print_exc())
+                    elif (rows2.text in surveyproviderlist) and rows2.text.strip().startswith("BitLabs"):
+                        print(rows2.text + ":Survey found")
+                        self.logger.info(rows2.text + ":Survey found")
+                        rows1.find_element(By.TAG_NAME, "a").click()
+                        time.sleep(self.random_sleeptime)
+                        iframe= self.bot_driver.find_element(By.CLASS_NAME, 'surveyIframeDiv')
+                        bitlabgrid=iframe.find_element(By.XPATH,'//*[@id="offerwall"]/div[3]')
+                        surveys = bitlabgrid.find_element(By.TAG_NAME, 'div')
+                        print("No of Div available is:" + str(len(surveys)))
+                    elif (rows2.text in surveyproviderlist) and rows2.text.strip().startswith("Dynata Survey Router"):
+                        print(rows2.text + ":Survey found")
+                        self.logger.info(rows2.text + ":Survey found")
+                        rows1.find_element(By.TAG_NAME, "a").click()
+                        time.sleep(self.random_sleeptime)
+                        parent = self.bot_driver.window_handles[0]
+                        child = self.bot_driver.window_handles[1]
+                        self.bot_driver.switch_to.window(child)
+                        url = self.bot_driver.current_url
+                        ispresent=True
+                        try:
+                            WebDriverWait(self.bot_driver, 20).until(
+                                EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//iframe[@title='reCAPTCHA']")))
+                            captchacheckbox = WebDriverWait(self.bot_driver, 20).until(
+                                EC.element_to_be_clickable((By.CSS_SELECTOR, "div.recaptcha-checkbox-border")))
+                            action = ActionChains(self.bot_driver);
+                            obj_HumanActionSimulator.human_like_mouse_move(action, captchacheckbox)
+
+                            WebDriverWait(self.bot_driver, 20).until(
+                                EC.element_to_be_clickable((By.CSS_SELECTOR, "div.recaptcha-checkbox-border"))).click()
+                            time.sleep(60)
+                            ispresent=self.__checkvalidcpxsurvey()
+                            url=self.bot_driver.current_url
+                            break
+                        except:
+                            print(traceback.print_exc())
+
                     else:
                         print("Match not found")
+
+
                 if ispresent:
                     break
 

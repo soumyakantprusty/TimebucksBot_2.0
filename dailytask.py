@@ -160,6 +160,7 @@ class dailymandatorytask:
                     self.bot_driver.find_element(By.XPATH,
                                             '/html/body/div[2]/div[2]/div/section/div/div[3]/div/center[1]/center/div[1]/div/div/div/div[2]/div/div/div[1]/a[2]').click()
 
+
                     time.sleep(self.sleeptime)
                     child2 = self.bot_driver.window_handles[2]
                     self.bot_driver.close()
