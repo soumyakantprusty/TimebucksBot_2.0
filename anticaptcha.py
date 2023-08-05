@@ -30,6 +30,10 @@ class AntiCaptcha:
                 solver = recaptchaV2Proxyless()
                 solver.set_verbose(1)
                 solver.set_key("621a03ed9c3b95634e84600766063251")
+                balance = solver.get_balance()
+                if balance <= 0:
+                    print("Current balance is {balance} too low balance!".format(balance=balance))
+                    return
                 solver.set_website_url(self.bot_driver.current_url)
                 solver.set_website_key(sitekey)
                 g_response = solver.solve_and_return_solution()

@@ -108,7 +108,8 @@ class dailyyoutubetask:
             print(repr(e))
         return isjobdone
     def __stringcategorization(self,instructions):
-        instructions = instructions.strip()
+
+        instructions = instructions.encode('ascii', 'ignore').decode('ascii').strip()
         file_path = self.basefilepath+"\\taskinstructions.txt"  # Provide the desired file path
 
         # Open the file in write mode
@@ -120,10 +121,11 @@ class dailyyoutubetask:
         patternlist = [
             r"1\. Go to\s+(.*?)\s+and click(?:\son\s)?(?:the\s)?video titled\s+(.*?)\s+with this thumbnail\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch at-least\s+(.*?)\s+minutes of(?:\sthe\s)?video\.?\s+3\. Optional Like the video",
             r"1\. Go to\s+(.*?)\s+and click on the video titled\s+(.*?)\s+with this thumbnail\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch at-least\s+(.*?)\s+minutes of the video\.?\s+3\. Optional Like the video",
-            r"1\. Go to\s+(.*?)\s+and click on the video titled\s+(.*?)\s+with this\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch(?:\sthe\s)?entire\s+(.*?)\s+minutes (?:\sof\s)?(?:\sthe\s)? video\.?\s",
-            r"1\. Go to\s+(.*?)\s+and click(?:\son\s)?(?:the\s)?video titled\s+(.*?)\s+with this thumbnail\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch at-least\s+(.*?)\s+minutes of(?:\sthe\s)?video\.?\s+3\. Optional Like the video",
+            r"1\.\s*Go to\s+(.*?)\s+and click on the video titled\s+(.*?)\s+with this\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch(?:\sthe\s)?entire\s+(.*?)\s+minutes (?:\sof\s)?(?:\sthe\s)? video\.?\s",
+            r"1\.\s*Go to\s+(.*?)\s+and click(?:\son\s)?(?:the\s)?video titled\s+(.*?)\s+with this thumbnail\s+(.*?)\s+from(?:\sthe\s)?(.*?)you will need to scroll down a bit\s+2\. Watch at-least\s+(.*?)\s+minutes of(?:\sthe\s)?video\.?\s+3\. Optional Like the video",
             r"1\. watch our youtube video for\s+(.*?)\s+minute\s+(.*?)",
-            r"1\. Click this link\s+(.*?)\s+2\. Watch the video\s+(.*?)\s+min\."
+            r"1\. Click this link\s+(.*?)\s+2\. Watch the video\s+(.*?)\s+min\.",
+            r"1\.\s*GO TO THE LINK\s*(.*?)\s*2\.\s*OPEN VIDEO Title\s*(.*?)\s*WITH THIS THUMBNAIL"
         ]
         instructiontype=-1
         for pattern in patternlist:
@@ -131,7 +133,7 @@ class dailyyoutubetask:
             if matches:
                 instructiontype=patternlist.index(pattern)
                 break
-        return instructiontype
+        return instructiontype,instructions
 
 
 
@@ -195,9 +197,10 @@ class dailyyoutubetask:
             ytubevideolist_url=""
             videowatchduration=""
         elif ytubetasktype==2:
-            videotitle_pattern = r"video titled(.*?)with this thumbnail"
-            ytubevideolist_pattern = r"Go to(.*?)and click"
+            videotitle_pattern = r"video titled\s+(.*?)\s+with this"
+            ytubevideolist_pattern = r"1\.\s*Go to\s+(.*?)\s+and click"
             #videowatchduration_pattern = r"Watch at-least(.*?)of the video"
+            videowatchduration_pattern1 = r"Watch at-least(.*?)of the video"
             videowatchduration_pattern2 = r"Watch the entire(.*?)of the video"
             # Extract the desired strings using regular expressions
             matches = re.findall(videotitle_pattern, instruction, re.DOTALL)
@@ -225,7 +228,7 @@ class dailyyoutubetask:
             for match in matches2:
                 print(match)
                 ytubevideolist_url = match
-            matches3 = re.findall(videowatchduration_pattern2, instruction, re.DOTALL)
+            matches3 = re.findall(videowatchduration_pattern1, instruction, re.DOTALL)
             # Remove leading and trailing whitespace from each match
             matches3 = [match.strip() for match in matches3]
             # Print the extracted strings
@@ -234,6 +237,66 @@ class dailyyoutubetask:
             for match in matches3:
                 print(match)
                 videowatchduration = match
+
+            if videowatchduration == "":
+                matches3 = re.findall(videowatchduration_pattern2, instruction, re.DOTALL)
+                # Remove leading and trailing whitespace from each match
+                matches3 = [match.strip() for match in matches3]
+                # Print the extracted strings
+                print("Extracted video duration")
+                for match in matches3:
+                    print(match)
+                    videowatchduration = match
+            print(videowatchduration)
+        elif ytubetasktype==6:
+            videotitle_pattern = r"2\.\s*OPEN VIDEO Title\s*(.*?)\s*WITH THIS THUMBNAIL"
+            ytubevideolist_pattern = r"1\.\s*GO TO THE LINK\s*(.*?)\s*2\.\s*OPEN VIDEO Title"
+            videowatchduration_pattern = r"video for\s*(\d+)\s*seconds"
+            matches = re.findall(videotitle_pattern, instruction, re.DOTALL)
+            # Remove leading and trailing whitespace from each match
+            matches = [match.strip() for match in matches]
+            # Print the extracted strings
+            print("Extracted Video title")
+            video_title = ""
+            for match in matches:
+                print(match)
+                if "???" in match:
+                    # Replace "???" placeholders with spaces in the second string
+                    string2_replaced = match.replace("???", " ")
+                    video_title = string2_replaced
+                else:
+                    string2_replaced = match
+                    video_title = string2_replaced
+
+            matches2 = re.findall(ytubevideolist_pattern, instruction, re.DOTALL)
+            # Remove leading and trailing whitespace from each match
+            matches2 = [match.strip() for match in matches2]
+            # Print the extracted strings
+            print("Extracted url")
+            ytubevideolist_url = ""
+            for match in matches2:
+                print(match)
+                ytubevideolist_url = match
+            matches3 = re.findall(videowatchduration_pattern, instruction, re.DOTALL)
+            # Remove leading and trailing whitespace from each match
+            matches3 = [match.strip() for match in matches3]
+            # Print the extracted strings
+            print("Extracted video duration")
+            videowatchduration = ""
+            for match in matches3:
+                print(match)
+                videowatchduration = "1 minutes"
+
+            '''if videowatchduration == "":
+                matches3 = re.findall(videowatchduration_pattern2, instruction, re.DOTALL)
+                # Remove leading and trailing whitespace from each match
+                matches3 = [match.strip() for match in matches3]
+                # Print the extracted strings
+                print("Extracted video duration")
+                for match in matches3:
+                    print(match)
+                    videowatchduration = match'''
+
 
         return video_title,ytubevideolist_url,videowatchduration
 
@@ -307,9 +370,9 @@ class dailyyoutubetask:
                         url=""
                         duration=""
                     else:
-                        category=self.__stringcategorization(text_content)
+                        category,instructions=self.__stringcategorization(text_content)
                         print(">>>>>>>>>>>>>>>"+str(category)+"<<<<<<<<<<<<<<")
-                        video_title,url,duration=self.__extractinformation(text_content,category)
+                        video_title,url,duration=self.__extractinformation(instructions,category)
 
 
                     if video_title != "" and url != "" and duration != "":

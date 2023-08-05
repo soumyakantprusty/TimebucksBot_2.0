@@ -37,13 +37,15 @@ class clickads:
 
     def check_presenceofAds(self):
         time.sleep(self.sleeptime)
+        print("Checking for availabilty of Ads.")
         try:
             numberofclicksavailable = self.bot_driver.find_element(By.XPATH,'/html/body/div[9]/div[3]/div/div[2]/div[2]/div[1]/div/div[2]/div/div/div[4]/div/div[2]/div[1]/span/span').text
-
+            #numberofclicksavailable = self.bot_driver.find_element(By.XPATH,'//*[@id="view_content_content_146"]/div/div[2]/div[1]').text
             print("No of Ads available:{adsavailable}".format(adsavailable=numberofclicksavailable))
             return int(numberofclicksavailable)
             self.logger.info("Successfully Checked presence of Ads")
         except:
+            print("Unable to get presence of Ads Information.")
             self.logger.error("Unable to get presence of Ads Information")
             return 0
 
@@ -131,13 +133,3 @@ class clickads:
             except TimeoutException:
                 print("Unable to fetch click price or ad message")
                 self.logger.error("Unable to fetch click price or ad message")
-
-
-
-
-
-
-
-
-
-

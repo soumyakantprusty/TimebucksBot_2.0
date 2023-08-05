@@ -20,7 +20,7 @@ from clearunwantedtabs import clearunwantedtabs
 from statusfileupdater import statusfileupdater
 from randomsleeptime import RandomSleepTime
 class dailymandatorytask:
-    def __init__(self,url,basepath,dailytasktitle,dailyquizpngpath,dailyupvotepngpath,dailyclickpngpath,bot_port,startnum,endnum):
+    def __init__(self,url,basepath,dailytasktitle,dailyquizpngpath,hr12websitevisit,dailyupvotepngpath,dailyclickpngpath,bot_port,startnum,endnum):
         super(dailymandatorytask, self).__init__()
         self.url = url
         self.basefilepath = basepath
@@ -28,6 +28,7 @@ class dailymandatorytask:
         self.dailyquizpngpath=dailyquizpngpath
         self.dailyupvotepngpath=dailyupvotepngpath
         self.dailyclickpngpath=dailyclickpngpath
+        self.hr12websitevisit=hr12websitevisit
         self.obj_randomsleeptime = RandomSleepTime(startnum, endnum)
         self.sleeptime = self.obj_randomsleeptime.getsleeptime()
         self.statusfileupdater = statusfileupdater("Daily Task-quiz", self.basefilepath)
@@ -86,7 +87,8 @@ class dailymandatorytask:
             every24hour = (WebDriverWait(self.bot_driver, 10).until(
                     EC.visibility_of_element_located(
                              (By.XPATH,
-                                  '//*[@id="tasks_content_375"]/div[4]/div[2]/div/div/div[3]/div/span/div/div/button[5]'))))
+                                  '//*[@id="tasks_content_375"]/div[4]/div[2]/div/div/div[3]/div/span/div/div/button[8]'))))
+
             self.bot_driver.execute_script("arguments[0].scrollIntoView();", every24hour)
             every24hour.click()
         except TimeoutException as e:
@@ -94,10 +96,26 @@ class dailymandatorytask:
             every24hour = (WebDriverWait(self.bot_driver, 10).until(
                 EC.visibility_of_element_located(
                     (By.XPATH,
-                     '//*[@id="tasks_content_375"]/div[4]/div[2]/div/div/div[3]/div/span/div/div/button[5]'))))
+                     '//*[@id="tasks_content_375"]/div[4]/div[2]/div/div/div[3]/div/span/div/div/button[8]'))))
 
 
             every24hour.click()
+        try:
+            every12hour = (WebDriverWait(self.bot_driver, 10).until(
+                EC.visibility_of_element_located(
+                    (By.XPATH,
+                        '//*[@id="tasks_content_375"]/div[4]/div[2]/div/div/div[3]/div/span/div/div/button[7]'))))
+
+            self.bot_driver.execute_script("arguments[0].scrollIntoView();", every12hour)
+            every12hour.click()
+        except TimeoutException as e:
+            self.bot_driver.refresh()
+            every12hour = (WebDriverWait(self.bot_driver, 10).until(
+                EC.visibility_of_element_located(
+                    (By.XPATH,
+                        '//*[@id="tasks_content_375"]/div[4]/div[2]/div/div/div[3]/div/span/div/div/button[7]'))))
+
+            every12hour.click()
 
 
 
@@ -476,6 +494,72 @@ class dailymandatorytask:
             self.logger.info("Encountered Error while completing daily quiz task.2")
             self.bot_driver.close()
             self.bot_driver.switch_to.window(self.bot_driver.window_handles[-1])
+    def __12hrwebsitevisit(self):
+        try:
+            table_id = self.bot_driver.find_element(By.ID, 'tblBuyReferrals')
+            tablebody = table_id.find_element(By.TAG_NAME, "tbody")  # get all of the rows in the table
+            tablerows = tablebody.find_elements(By.TAG_NAME, "tr")
+            for row in tablerows:
+                col = row.find_elements(By.TAG_NAME, "td")
+                if "Website visit" in col[0].text:
+                    print("Found Once in 12 Hr Website visit")
+                    self.logger.info("Found Once in 12 Hr Website visit")
+                    col[1].find_element(By.TAG_NAME, "a").click()
+                    time.sleep(self.sleeptime)
+                    try:
+                        WebDriverWait(self.bot_driver, 20).until(
+                            EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//iframe[@title='reCAPTCHA']")))
+                        WebDriverWait(self.bot_driver, 20).until(
+                            EC.element_to_be_clickable((By.CSS_SELECTOR, "div.recaptcha-checkbox-border"))).click()
+                        time.sleep(60)
+                        self.bot_driver.switch_to.parent_frame()
+                    except Exception as e:
+                        print(repr(e))
+                        self.bot_driver.switch_to.parent_frame()
+                        self.bot_driver.find_element(By.XPATH, '//input[@class="btnSubmitCaptcha"]').click()
+                        time.sleep(self.sleeptime)
+                    url = self.bot_driver.find_element(By.XPATH, '//p[@class="instructions"]')
+                    atag = url.find_element(By.TAG_NAME, 'a')
+                # linktext1=atag.text
+                    linktext2 = atag.get_attribute("href")
+                # print(linktext1)
+                    print(linktext2)
+                    self.bot_driver.find_element(By.LINK_TEXT, linktext2).click()
+                    time.sleep(10)
+                    parent = self.bot_driver.window_handles[0]
+                # obtain browser tab window
+                    child = self.bot_driver.window_handles[1]
+                    self.bot_driver.switch_to.window(child)
+                    time.sleep(self.sleeptime)
+                    #self.bot_driver.find_element(By.XPATH,
+                                            #'//*[@id="rso"]/div[1]/div/div/div[1]/div/div/div[1]/div/a').click()
+                    self.bot_driver.get("https://greatoceanrd.org.au/")
+
+
+                    time.sleep(200)
+                    self.bot_driver.save_screenshot(self.hr12websitevisit)
+                    self.logger.info("Screen shot taken")
+                    print("Screenshot taken")
+                    self.bot_driver.close()
+                    self.bot_driver.switch_to.window(parent)
+                    self.bot_driver.find_element(By.XPATH, '//*[@id="buyTasksForm"]/div[2]/span/input[2]').click()
+                    time.sleep(self.sleeptime)
+                    pyautogui.write(self.hr12websitevisit)  # enter file with path
+                    time.sleep(self.sleeptime)
+                    pyautogui.press('enter')
+                    time.sleep(self.sleeptime)
+                    self.bot_driver.find_element(By.XPATH, '//input[@class="btnSubmitForApproval"]').click()
+                    time.sleep(20)
+                    with open(self.basefilepath + "\\botregister.csv", 'a', newline='') as csvfile:
+                        writer = csv.writer(csvfile)
+                        writer.writerow([datetime.datetime.now(), '1', 'dailytask', 'Success', '0.001'])
+                    break
+        except Exception as e:
+            print("Encountered error as below ")
+            print(repr(e))
+            self.logger.info("Encountered error as below ::"+repr(e))
+
+
 
 
 
@@ -494,6 +578,8 @@ class dailymandatorytask:
                     self.__dailyEmail()
                 elif task =="Upvote this comment Daily ":
                     self.__dailyYtubecomment()
+                elif task =="Website visit":
+                    self.__12hrwebsitevisit()
                 availabletask=self.check_presenceoftask()
         self.bot_driver.quit()
         self.webdriver_obj.quitwebdriver()

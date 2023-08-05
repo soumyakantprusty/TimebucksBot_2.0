@@ -32,6 +32,7 @@ from survey import Surveys
 from sampliciousprofiler import SampliciousProfiler
 from surveybot import SurveyBot
 from loottv import LootTv
+
 from randomsleeptime import RandomSleepTime
 
 class TimeBucksBots:
@@ -51,8 +52,9 @@ class TimeBucksBots:
         self.dailyclickpngpath="C:\\Users\\"+self.curentuser+"\\Documents\\TimeBucksBots\\Dailyclick.png"
         self.dailyupvotepngpath="C:\\Users\\"+self.curentuser+"\\Documents\\TimeBucksBots\\Dailyupvote.png"
         self.dailyquizpngpath="C:\\Users\\"+self.curentuser+"\\Documents\\TimeBucksBots\\Dailyquiz.png"
+        self.hr12websitevisitpath = "C:\\Users\\" + self.curentuser + "\\Documents\\TimeBucksBots\\hr12websitevisit.png"
         self.dailytasktitle = ['WEBSITE ENGAGE AND AD 1-CLICK NEW', 'Daily Click', "Upvote this comment Daily ",
-                               "Receive Email and Open Link - Daily  ", "Complete a Quiz - DAILY"]
+                               "Receive Email and Open Link - Daily  ", "Complete a Quiz - DAILY","Website visit"]
 
         self.taskurls=[
             "https://timebucks.com/publishers/index.php?pg=earn&tab=view_content_ads",
@@ -131,12 +133,12 @@ class TimeBucksBots:
         time.sleep(5)
         bot_driver.quit()
         self.webdriver_obj.quitwebdriver()
-        return self.credentialfilepath,self.curentuser,self.username,self.password,self.taskurls,self.logger,self.current_time,self.dailytasktitle,self.basefilepath,self.tasklistfilepath,self.dailyquizpngpath,self.dailyupvotepngpath,self.dailyclickpngpath
+        return self.credentialfilepath,self.curentuser,self.username,self.password,self.taskurls,self.logger,self.current_time,self.dailytasktitle,self.basefilepath,self.tasklistfilepath,self.dailyquizpngpath,self.hr12websitevisitpath,self.dailyupvotepngpath,self.dailyclickpngpath
 if __name__ == '__main__':
     print("Bot program started")
     print("Reading excepted inputs for the Bot parameters")
     noofparameters = len(sys.argv)
-    if noofparameters<10:
+    if noofparameters<11:
         print("Required parameters not found.Check and relaunch the program")
     else:
         bot_port=sys.argv[1]
@@ -152,10 +154,10 @@ if __name__ == '__main__':
         #webdriverswitch=sys.argv[5]
         #bot_profile=sys.argv[1]
         webdriverclass = TimeBucksBots(bot_port)
-        credentials,curentuser,username,password,taskurlslist,logger,current_time,dailytasktitle,basefilepath,tasklistfilepath,dailyquizpngpath,dailyupvotepngpath,\
+        credentials,curentuser,username,password,taskurlslist,logger,current_time,dailytasktitle,basefilepath,tasklistfilepath,dailyquizpngpath,hr12websitevisit,dailyupvotepngpath,\
             dailyclickpngpath = webdriverclass.startwebdriver()
         obj_clickads=clickads(taskurlslist[0],basefilepath,bot_port,startnum,endnum)
-        obj_dailytask=dailymandatorytask(taskurlslist[1],basefilepath,dailytasktitle,dailyquizpngpath,dailyupvotepngpath,dailyclickpngpath,bot_port,startnum,endnum)
+        obj_dailytask=dailymandatorytask(taskurlslist[1],basefilepath,dailytasktitle,dailyquizpngpath,hr12websitevisit,dailyupvotepngpath,dailyclickpngpath,bot_port,startnum,endnum)
         obj_pushclick=pushclick(taskurlslist[2],basefilepath,bot_port,startnum,endnum,pushclicklimit)
         obj_slideshow=slideshow(taskurlslist[3],basefilepath,bot_port,startnum,endnum,slideshowlimit)
         obj_defaultsurvey=defaultsurvey(taskurlslist[4],basefilepath,bot_port)
@@ -278,7 +280,7 @@ if __name__ == '__main__':
                             obj_surveybot.actualsurveybot()
                         else:
                             print("No active survey available")
-                elif random_int==8 and obj_tasktimers.settimers(1):
+                elif random_int==88 and obj_tasktimers.settimers(1):
                     print("LOOT TV-Bot JobId:{jobid}".format(jobid=random_int))
                     logger.info("Loot TV-Bot JobId:{jobid}".format(jobid=random_int))
                     isLootTVavailable=obj_loottv.checkLoottv()
@@ -290,6 +292,7 @@ if __name__ == '__main__':
                     else:
                         print("Unable to start loottv")
                     print("LootTV task completed")
+
                     #incomedetails = obj_botincomedetails.getbotincometaskdetails()
                    #with open(basefilepath + "\\incomedetails.json", 'w') as json_file:
                         #json.dump(incomedetails, json_file)
