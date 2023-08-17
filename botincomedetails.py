@@ -28,7 +28,7 @@ class botincomedetails:
     def getbotincometaskdetails(self):
         self.bot_driver = self.webdriver_obj.startwebdriver()
         try:
-            print("##################")
+            print("###################")
             print("Checking income details...")
             print("##################")
             self.logger.info("Checking income details...")
