@@ -90,23 +90,25 @@ class slideshow:
         return isslideavailable
 
     def startslideshowtask(self):
-        obj_anticaptcha = AntiCaptcha(self.bot_driver,3,self.basefilepath)
-    
+
         try:
             viewbutton = WebDriverWait(self.bot_driver, 10).until(EC.visibility_of_element_located(
                 (By.XPATH, '//*[@id="viewTimecaveTOffers"]/tbody/tr/td[5]/div/a/span/input')))
             viewbutton.click()
-            time.sleep(self.sleeptime+5)
+            time.sleep(self.sleeptime)
             parent = self.bot_driver.window_handles[0]
             child = self.bot_driver.window_handles[1]
             self.bot_driver.switch_to.window(child)
-            obj_anticaptcha.callanticaptcha()
             try:
                 WebDriverWait(self.bot_driver, 8).until(
                     EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//iframe[@title='reCAPTCHA']")))
                 WebDriverWait(self.bot_driver, 8).until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR, "div.recaptcha-checkbox-border"))).click()
-                time.sleep(30)
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, "div.recaptcha-checkbox-border")))
+                print("Captcha Code found")
+                self.logger.info("Captcha Code found")
+                self.bot_driver.switch_to.parent_frame()
+                obj_anticaptcha = AntiCaptcha(self.bot_driver, 3, self.basefilepath)
+                obj_anticaptcha.callanticaptcha()
             except:
                 currenturl = self.bot_driver.current_url
                 if currenturl !="https://timebucks.com/redirects/timecave_redirect.php" and currenturl !="https://thetimecave.com/":
@@ -126,7 +128,7 @@ class slideshow:
                             print("Unable to connect to url.")
 
                             break
-                        time.sleep(self.sleeptime+5)
+                        time.sleep(25)
                     current_time=datetime.datetime.now()
                     self.bot_driver.get("https://timebucks.com/publishers/index.php?pg=earn&tab=view_content_timecave_slideshows")
                     for index, value in enumerate(self.bot_driver.window_handles):

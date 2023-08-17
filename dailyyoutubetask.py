@@ -7,13 +7,14 @@ import time
 
 import pandas as pd
 import pyautogui
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from clearunwantedtabs import clearunwantedtabs
 from bs4 import BeautifulSoup
-
+from anticaptcha import AntiCaptcha
 from botwebdriver import botwebdriver
 from bottaskdetails import BotTaskDetails
 from randomsleeptime import RandomSleepTime
@@ -135,6 +136,13 @@ class dailyyoutubetask:
                 break
         return instructiontype,instructions
 
+    def __solveCaptcha(self):
+        obj_captchasolver = AntiCaptcha(self.bot_driver,6,self.basefilepath)
+        solved=obj_captchasolver.callanticaptcha()
+        if solved:
+            print("Captcha Successfully solved")
+        else:
+            print("Captcha Successfully not solved")
 
 
 
@@ -299,6 +307,10 @@ class dailyyoutubetask:
 
 
         return video_title,ytubevideolist_url,videowatchduration
+    def __solveCaptcha(self):
+        print("Calling AntiCaptcha API.")
+        obj_captchasolver = AntiCaptcha(self.bot_driver,6,self.basefilepath)
+        obj_captchasolver.callanticaptcha()
 
     def remove_emoji(self,text):
         # Regular expression pattern to match emoji characters
@@ -393,8 +405,11 @@ class dailyyoutubetask:
                             except:
                                 WebDriverWait(self.bot_driver, 8).until(
                                     EC.element_to_be_clickable((By.CSS_SELECTOR, "div.recaptcha-checkbox-border"))).click()
+                                print("Captcha Code found")
                                 self.logger.info("Captcha Code found")
-                                time.sleep(60)
+                                self.bot_driver.switch_to.parent_frame()
+                                self.__solveCaptcha()
+                                time.sleep(4)
                             self.bot_driver.switch_to.parent_frame()
 
                         except Exception as e:
@@ -419,8 +434,11 @@ class dailyyoutubetask:
                             except:
                                 print("Campaign limit not reached")
                                 time.sleep(self.sleeptime)
-                                self.bot_driver.execute_script("window.open('about:blank', '_blank');")
+
+                                self.bot_driver.execute_script("window.open('');")
                                 self.bot_driver.switch_to.window(self.bot_driver.window_handles[-1])
+                                #self.bot_driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't')
+                                time.sleep(self.sleeptime)
                                 self.bot_driver.get(url)
                                 time.sleep(self.sleeptime)
                                 content = self.bot_driver.find_element(By.ID, 'contents')
@@ -429,7 +447,7 @@ class dailyyoutubetask:
                                 videotitlefound=False
 
                                 for counter in range(len(videolist)):
-                                    time.sleep(self.sleeptime)
+                                    time.sleep(2)
 
                                     videotitle=videolist[counter].find_element(By.XPATH, './/*[@id="video-title"]/yt-formatted-string').text
                                     print("########################")

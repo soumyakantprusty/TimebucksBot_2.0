@@ -15,18 +15,16 @@ import random
 from botwebdriver import botwebdriver
 #from botwendriver_chrome import botwebdriver
 from clearunwantedtabs import clearunwantedtabs
-from randomsleeptime import RandomSleepTime
+
 
 class clickads:
     def __init__(self,url,basepath,bot_port,startnum,endnum):
         super(clickads, self).__init__()
         self.url=url
         self.basefilepath=basepath
-        self.random_sleeptime = random.randint(5, 8)
+        self.random_sleeptime = random.randint(int(startnum), int(endnum))
         self.webdriver_obj = botwebdriver(bot_port, basepath)
-        self.obj_randomsleeptime=RandomSleepTime(startnum,endnum)
-        self.sleeptime=self.obj_randomsleeptime.getsleeptime()
-        print("sleep time>>>:"+str(self.sleeptime))
+        print("sleep time>>>:"+str(self.random_sleeptime))
         logging.basicConfig(filename=self.basefilepath+"//bot"+str(datetime.datetime.now().date())+".log", level=logging.INFO,format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         self.logger = logging.getLogger(__name__)
         #obj_clearunwantedtabs.close()
@@ -36,7 +34,7 @@ class clickads:
         self.bot_driver.get(self.url)
 
     def check_presenceofAds(self):
-        time.sleep(self.sleeptime)
+        time.sleep(self.random_sleeptime)
         print("Checking for availabilty of Ads.")
         try:
             numberofclicksavailable = self.bot_driver.find_element(By.XPATH,'/html/body/div[9]/div[3]/div/div[2]/div[2]/div[1]/div/div[2]/div/div/div[4]/div/div[2]/div[1]/span/span').text
@@ -85,7 +83,7 @@ class clickads:
 
                     print("Bot will sleep for:{sleeptime} secs".format(sleeptime=adactivetime))
                     self.logger.info("Bot will sleep for:{sleeptime} secs".format(sleeptime=adactivetime))
-                    time.sleep(self.sleeptime)
+                    time.sleep(self.random_sleeptime)
                     print(self.bot_driver.window_handles)
                     try:
                         parent = self.bot_driver.window_handles[0]
@@ -102,7 +100,7 @@ class clickads:
                                                     '//*[@id="viewAdsTOffers1"]/tbody/tr/td[4]/div/h2').text
                             print("Amount of time still left:{time} sec(s)".format(time=timerleft))
                             self.logger.error("Amount of time still left:{time} sec(s)".format(time=timerleft))
-                            time.sleep(self.sleeptime)
+                            time.sleep(self.random_sleeptime)
                             self.bot_driver.switch_to.window(child)
                             time.sleep(int(timerleft)+5)
                             self.bot_driver.switch_to.window(parent)
